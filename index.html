@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crack Lab</title>
+<meta name="description" content="A password strength game. See how long a password would take to crack, and watch how crackers actually guess it.">
+<style>
+
+:root{
+  --bg:#111; --panel:#171717; --line:#2a2a2a; --line2:#3a3a3a;
+  --text:#dcdcdc; --dim:#8c8c8c; --mute:#5a5a5a;
+  --c1:#d9443b; --c2:#e0a03a; --c3:#4aa8a0; --c4:#5b7fd1;
+  --mono:Consolas,"Courier New",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5}
+a{color:var(--c3)}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}
+
+header{border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;justify-content:space-between;min-height:64px;flex-wrap:wrap;gap:8px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em;font-size:16px;color:var(--text);text-decoration:none}
+header nav a{color:var(--dim);text-decoration:none;margin-left:22px;font-size:13px;white-space:nowrap}
+header nav a:hover,header nav a.on{color:var(--text)}
+
+.intro{padding:44px 0 20px}
+.intro h1{font-size:28px;font-weight:700}
+.intro p{color:var(--dim);margin-top:6px;max-width:560px}
+
+h2{font-size:12px;font-family:var(--mono);color:var(--mute);letter-spacing:.12em;text-transform:uppercase;margin:26px 0 10px}
+
+.btn{font-family:var(--sans);font-size:13px;font-weight:600;color:#fff;background:#2b2b2b;border:1px solid var(--line2);
+     padding:8px 16px;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{background:#353535}
+.btn.go{background:var(--c1);border-color:var(--c1)}
+.btn.go:hover{filter:brightness(1.1)}
+.btn[disabled]{background:transparent;color:var(--mute);border-color:var(--line);cursor:not-allowed}
+footer{border-top:1px solid var(--line);margin-top:40px}
+footer .wrap{height:56px;display:flex;align-items:center;justify-content:space-between;color:var(--mute);font-size:12px}
+.mark{width:20px;height:20px;border:2px solid var(--c2);position:relative;margin-top:6px}
+.mark::after{content:"";position:absolute;left:4px;top:-10px;width:8px;height:9px;border:2px solid var(--c2);border-bottom:0}
+header .tagline{color:var(--mute);font-family:var(--mono);font-size:11px}
+
+  .note{font-family:var(--mono);font-size:11px;color:var(--mute);margin-top:8px}
+
+  /* input */
+  .box{border:1px solid var(--line);background:var(--panel)}
+  .box .top{display:flex;height:3px}
+  .box .top i{flex:1;background:var(--line2);transition:background .2s}
+  .inrow{display:flex;gap:8px;padding:18px 18px 10px;flex-wrap:wrap}
+  .inrow input{flex:1;min-width:200px;background:var(--bg);border:1px solid var(--line2);color:var(--text);
+    font-family:var(--mono);font-size:20px;padding:10px 12px;outline:none}
+  .inrow input:focus{border-color:var(--dim)}
+  .meta{display:flex;justify-content:space-between;padding:0 18px 14px;font-family:var(--mono);font-size:11px;color:var(--mute);flex-wrap:wrap;gap:6px}
+  .meta .cs span{margin-right:10px} .meta .cs span.on{color:var(--text)}
+
+  .verdict{border-top:1px solid var(--line);padding:18px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+  .verdict .lbl{font-family:var(--mono);font-size:11px;color:var(--mute);letter-spacing:.12em;text-transform:uppercase}
+  .verdict .time{font-size:30px;font-weight:700;margin-top:2px;line-height:1.15}
+  .verdict .why{color:var(--dim);font-size:13px;margin-top:6px}
+  .verdict .score{text-align:right}
+  .verdict .score b{font-size:30px;display:block;line-height:1.15}
+  .meter{height:6px;background:var(--bg);border-top:1px solid var(--line)}
+  .meter i{display:block;height:100%;width:0;transition:width .25s,background .25s}
+
+  .s0{color:var(--c1)} .s1{color:var(--c2)} .s2{color:var(--text)} .s3{color:var(--c3)} .s4{color:var(--c4)}
+
+  /* attacker table */
+  .atk{border:1px solid var(--line);background:var(--panel)}
+  .atk div.r{display:grid;grid-template-columns:1fr 140px 150px;border-top:1px solid var(--line);cursor:pointer}
+  .atk div.r:first-child{border-top:0}
+  .atk div.r>*{padding:9px 14px}
+  .atk div.r:hover{background:#1c1c1c}
+  .atk div.r.on{box-shadow:inset 3px 0 0 var(--c1)}
+  .atk .n b{display:block;font-size:13px} .atk .n span{font-size:12px;color:var(--dim)}
+  .atk .sp{font-family:var(--mono);font-size:11px;color:var(--mute);align-self:center}
+  .atk .t{font-family:var(--mono);font-size:13px;text-align:right;align-self:center}
+
+  .tips{margin:10px 0 0 18px;color:var(--dim);font-size:13px}
+  .tips li{margin-top:3px}
+
+  /* cracker */
+  .term{border:1px solid var(--line);background:#0c0c0c;font-family:var(--mono);font-size:12px}
+  .term .bar{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);gap:8px;flex-wrap:wrap}
+  .term .bar span{color:var(--mute)}
+  .stages{display:flex;border-bottom:1px solid var(--line)}
+  .stages div{flex:1;padding:7px 12px;color:var(--mute);border-left:1px solid var(--line);font-size:11px}
+  .stages div:first-child{border-left:0}
+  .stages div.on{color:var(--text);box-shadow:inset 0 -2px 0 var(--c2)}
+  .stages div.done{color:var(--dim)} .stages div.hit{color:var(--c1);box-shadow:inset 0 -2px 0 var(--c1)}
+  .guess{padding:18px 14px 6px;font-size:24px;letter-spacing:.06em;min-height:58px;word-break:break-all;color:var(--dim)}
+  .guess.hit{color:var(--c1)}
+  .cnt{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+  .cnt div{padding:9px 12px;border-left:1px solid var(--line)} .cnt div:first-child{border-left:0}
+  .cnt b{display:block;font-size:14px;color:var(--text);font-weight:600}
+  .cnt span{font-size:10px;color:var(--mute);text-transform:uppercase;letter-spacing:.1em}
+  .prog{height:4px;background:var(--line)} .prog i{display:block;height:100%;width:0;background:var(--c2)}
+  .log{max-height:150px;overflow:auto;border-top:1px solid var(--line);padding:6px 0}
+  .log div{padding:1px 12px;color:var(--mute);white-space:pre-wrap}
+  .log div.hi{color:var(--text)} .log div.bad{color:var(--c1)} .log div.ok{color:var(--c3)}
+
+  /* challenges */
+  .lv{display:grid;grid-template-columns:4px 54px 1fr auto;border:1px solid var(--line);background:var(--panel);margin-bottom:8px;cursor:pointer}
+  .lv .edge{background:var(--line2)}
+  .lv.done .edge{background:var(--c3)} .lv.cur{outline:1px solid var(--dim)}
+  .lv .num{font-family:var(--mono);color:var(--mute);padding:12px 0 12px 14px;font-size:12px}
+  .lv .info{padding:10px 14px 10px 0}
+  .lv .info b{font-size:13px} .lv .info span{display:block;font-size:12px;color:var(--dim)}
+  .lv .st{font-family:var(--mono);font-size:11px;padding:0 14px;align-self:center;color:var(--mute)}
+  .lv.done .st{color:var(--c3)}
+  .goal{border:1px solid var(--line);border-left:3px solid var(--c2);background:var(--panel);padding:10px 14px;margin-top:10px;font-size:13px;display:none}
+  .goal.show{display:block} .goal.win{border-left-color:var(--c3)}
+  .goal ul{list-style:none;margin-top:4px;font-family:var(--mono);font-size:12px}
+  .goal li.y{color:var(--c3)} .goal li.n{color:var(--mute)}
+  .total{font-family:var(--mono);font-size:12px;color:var(--dim);margin-bottom:10px}
+
+  /* examples */
+  .ex{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+  .ex button{font-family:var(--mono);font-size:14px;text-align:left;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--c4);
+    color:var(--text);padding:10px 12px;cursor:pointer;word-break:break-all}
+  .ex button:hover{border-color:var(--line2);border-left-color:var(--c4)}
+  .ex button span{display:block;font-size:10px;color:var(--mute);margin-top:3px}
+  .gen{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+  .gen code{font-family:var(--mono);font-size:15px;border:1px solid var(--line2);padding:7px 10px;background:var(--bg);min-width:240px}
+
+  @media (max-width:600px){
+    .atk div.r{grid-template-columns:1fr 120px} .atk .sp{display:none}
+    .verdict .time{font-size:24px} .guess{font-size:18px}
+    .lv{grid-template-columns:4px 40px 1fr} .lv .st{grid-column:3;padding:0 0 10px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="./"><span class="mark"></span>Crack Lab</a>
+    <span class="tagline">how fast would your password fall?</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="intro">
+    <h1>Test your password</h1>
+    <p>Type a password (up to 20 characters) and see how long it would hold up. Then run the cracker to watch how it actually gets guessed, and beat the challenges.</p>
+    <p class="note">Everything runs in your browser. Nothing you type is sent anywhere, but don't test a password you really use.</p>
+  </section>
+
+  <div class="box">
+    <div class="top" id="topbar"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="inrow">
+      <input id="pw" type="text" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type a password">
+      <button class="btn" id="eye">Hide</button>
+      <button class="btn go" id="run">Crack it</button>
+    </div>
+    <div class="meta">
+      <div class="cs" id="cs"><span data-k="l">a-z</span><span data-k="u">A-Z</span><span data-k="d">0-9</span><span data-k="s">!@#</span></div>
+      <div><span id="len">0</span>/20 · <span id="bits">0</span> bits · <span id="combos">0</span> guesses</div>
+    </div>
+    <div class="verdict">
+      <div>
+        <div class="lbl" id="vlbl">Time to crack</div>
+        <div class="time" id="vtime">—</div>
+        <div class="why" id="vwhy">Start typing.</div>
+      </div>
+      <div class="score"><b id="vscore">0</b><span class="lbl">score / 100</span></div>
+    </div>
+    <div class="meter"><i id="meter"></i></div>
+  </div>
+  <ul class="tips" id="tips"></ul>
+
+  <h2>Who's attacking? (click one)</h2>
+  <div class="atk" id="atk"></div>
+
+  <h2>Watch it get cracked</h2>
+  <div class="term">
+    <div class="bar"><span id="tstatus">idle — press "Crack it"</span><span id="tatk"></span></div>
+    <div class="stages" id="stages"><div>1 · common passwords</div><div>2 · words + rules</div><div>3 · brute force</div></div>
+    <div class="guess" id="guess">_</div>
+    <div class="cnt">
+      <div><b id="cg">0</b><span>guesses tried</span></div>
+      <div><b id="ct">0 s</b><span>attacker's time</span></div>
+      <div><b id="cp">0%</b><span>of the way there</span></div>
+    </div>
+    <div class="prog"><i id="cprog"></i></div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <h2>Challenges</h2>
+  <div class="total" id="total"></div>
+  <div id="levels"></div>
+  <div class="goal" id="goal"></div>
+
+  <h2>10 "uncrackable" passwords</h2>
+  <p style="color:var(--dim);font-size:13px;margin-bottom:10px">20 random characters from all 4 groups. Click one to test it. Since these are posted on a public page, don't actually use them. Press Generate to make a fresh one that only you see.</p>
+  <div class="ex" id="ex"></div>
+  <div class="gen"><button class="btn go" id="genbtn">Generate</button><code id="gencode">—</code><button class="btn" id="gentest">Test it</button></div>
+</main>
+
+<footer><div class="wrap"><span>Crack Lab</span><span id="yr"></span></div></footer>
+
+<script>
+/* ---------- data ---------- */
+const COMMON = ("123456 password 123456789 12345678 12345 qwerty 1234567 111111 1234567890 123123 abc123 1234 password1 iloveyou 1q2w3e4r 000000 qwerty123 zaq12wsx dragon sunshine princess letmein 654321 monkey 27653 1qaz2wsx 123321 qwertyuiop superman asdfghjkl trustno1 jordan23 welcome 123qwe football baseball master shadow michael 666666 qazwsx 7777777 121212 hello admin login passw0rd starwars freedom whatever charlie donald batman aa123456 lovely 888888 ashley bailey access flower hottie loveme zxcvbnm 696969 solo hunter killer mustang soccer harley ranger buster thomas tigger robert hockey jennifer daniel andrew joshua pepper ginger summer winter matrix secret minecraft creeper diamond pokemon roblox fortnite naruto computer internet google samsung apple chocolate cookie banana orange purple yellow liverpool chelsea arsenal london america jesus blessed angel family friends forever money qwer1234 asdf1234 asdfgh abcdef abcd1234 999999 555555 112233 987654321 159753 1111 0000 test test123 guest root pass password123 admin123 hello123 love123 iloveu").split(" ");
+const WORDS = ("love baby girl boy king queen star moon sun fire water ice dark light black white red blue green gold silver dog cat fish bird wolf lion tiger bear eagle shark snake horse tree rock stone river ocean sky rain snow storm thunder night day happy sad crazy cool super mega ultra power magic dream heart soul life death ghost devil demon angel hero ninja pirate knight sword shield gun bullet war peace game play player gamer pro noob boss admin user hack hacker glass apple orange lemon cherry berry candy sugar pizza burger taco coffee music rock metal party summer winter spring autumn monday friday sunday house home school teacher doctor money cash rich lucky happy smile funny pretty sexy hot cold big small little tiny giant fast slow speed racer car truck bike train plane rocket space planet earth mars alien robot cyber pixel block craft mine diamond emerald creeper zombie skeleton dragon ender nether steve alex sniper killer hunter shadow phoenix falcon cobra viper panther jaguar storm blaze frost spark bolt nova galaxy cosmic quantum matrix vector alpha beta gamma delta omega zero hero legend master monster secret private hidden correct horse battery staple purple yellow brown pink nick tang jordan michael chris david james john sarah emma olivia sophia jessica ashley taylor").split(" ");
+const KEYROWS = ["qwertyuiop","asdfghjkl","zxcvbnm","1234567890","abcdefghijklmnopqrstuvwxyz","1qaz2wsx3edc4rfv5tgb","qazwsxedcrfvtgbyhnujmikolp"];
+const EXAMPLES = ["V&<Bj*@[u;2y%&Rf9~A6","pJxUau#R4_&6YWsgZwU7","7ll)5<$Qo7/^^&/j&y{S","_A#w0g;xFfC8Bp+Bo,$v","NNF{D0Nn1o]?5rM[,kFO","w&LyEaEjBFrVJN$=X&7+","|[~p$h)C5*#OuT[1CW|p","}fZp2Z2QnW2Mh@wKB0QQ","SrR)^:}}$/o*O6$NJ>[d","&11UQ.hXSGeHL_.#=fcY"];
+const ATTACKERS = [
+  {id:"online", name:"Guessing on a login page", sub:"The site locks you out after a few tries", rate:10},
+  {id:"online2", name:"Login page, no lockout", sub:"A badly built site that lets bots spam guesses", rate:1e3},
+  {id:"slow", name:"Stolen database, slow hash", sub:"Site stored passwords properly (bcrypt), one GPU", rate:1e5},
+  {id:"fast", name:"Stolen database, fast hash", sub:"Site used an old hash (MD5), one gaming GPU", rate:1.6e11},
+  {id:"farm", name:"GPU farm", sub:"Hundreds of GPUs working together, fast hash", rate:1e14}
+];
+const LEET = {"4":"a","@":"a","8":"b","(":"c","3":"e","6":"g","9":"g","1":"i","!":"i","|":"l","0":"o","5":"s","$":"s","7":"t","+":"t","2":"z"};
+const SYMS = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ ";
+const YEAR = 365.25*24*3600, UNIVERSE = 13.8e9*YEAR;
+
+let atkIdx = 3, hidden = false, running = null;
+
+/* ---------- analysis ---------- */
+function classes(p){
+  return {l:/[a-z]/.test(p), u:/[A-Z]/.test(p), d:/[0-9]/.test(p),
+          s:[...p].some(c=>SYMS.includes(c)), o:[...p].some(c=>!/[a-zA-Z0-9]/.test(c)&&!SYMS.includes(c))};
+}
+function poolOf(s){
+  const c = classes(s); return (c.l?26:0)+(c.u?26:0)+(c.d?10:0)+(c.s?33:0)+(c.o?100:0) || 1;
+}
+function brute(s){ return s.length ? Math.pow(poolOf(s), s.length) : 1; }
+function unleet(s){ return [...s.toLowerCase()].map(c=>LEET[c]||c).join(""); }
+function caseVariants(s){
+  if (s === s.toLowerCase()) return 1;
+  if (s === s[0].toUpperCase()+s.slice(1).toLowerCase() || s === s.toUpperCase()) return 2;
+  return Math.pow(2, Math.min(s.length, 8));
+}
+function isSequence(s){
+  if (s.length < 3) return false;
+  const l = s.toLowerCase();
+  if (/^(.)\1+$/.test(l)) return true;
+  for (const r of KEYROWS){ const rr = [...r].reverse().join(""); if (r.includes(l) || rr.includes(l)) return true; }
+  const rep = l.match(/^(.+?)\1+$/);
+  if (rep && (rep[1].length <= 4 || isSequence(rep[1]))) return true;
+  return false;
+}
+function segGuesses(seg){
+  if (!seg) return {g:1, what:[]};
+  if (/^(19[5-9]\d|20[0-3]\d)$/.test(seg)) return {g:90, what:["a year"]};
+  if (/^\d{1,4}$/.test(seg)) return {g:Math.pow(10,seg.length)*2, what:["a few numbers"]};
+  if (isSequence(seg)) return {g:200*seg.length, what:["a keyboard pattern"]};
+  if (/^[!@#$%^&*?.]{1,2}$/.test(seg)) return {g:20, what:["a symbol at the end"]};
+  // split mixed chunks like "2010!" into runs (digits / letters / symbols) and judge each run
+  const runs = seg.match(/[a-zA-Z]+|[0-9]+|[^a-zA-Z0-9]+/g);
+  if (runs.length > 1){
+    let g = 1, what = [];
+    for (const r of runs){ const x = segGuesses(r); g *= x.g; what = what.concat(x.what); }
+    return {g: Math.min(g * runs.length, brute(seg)), what};
+  }
+  return {g:brute(seg), what:[]};
+}
+/* Estimate guesses the way real crackers order their attempts (lite version of zxcvbn's idea). */
+function analyze(p){
+  const r = {pw:p, bf:brute(p), guesses:0, stage:3, what:[]};
+  if (!p){ r.guesses = 0; return r; }
+  const low = p.toLowerCase(), un = unleet(p);
+  // stage 1: exact common password (also with simple caps/leet/1-2 trailing chars)
+  let ci = COMMON.indexOf(low); if (ci < 0) ci = COMMON.indexOf(un);
+  if (ci >= 0){
+    r.guesses = (ci+1) * caseVariants(p) * (low===un?1:4); r.stage = 1; r.what = ["one of the most common passwords"]; return fin(r);
+  }
+  if (isSequence(p)){ r.guesses = 200*p.length; r.stage = 1; r.what = ["a keyboard pattern / repeat"]; return fin(r); }
+  // stage 2: dictionary words + rules (caps, leet, numbers/years/symbols added)
+  let best = null;
+  const dict = WORDS.concat(COMMON.filter(w=>/^[a-z]{4,}$/.test(w)));
+  (function search(text, raw, cost, what, depth){
+    let found = false;
+    for (const w of dict){
+      if (w.length < 3) continue;
+      const i = text.indexOf(w); if (i < 0) continue;
+      found = true;
+      const rw = raw.substr(i, w.length);
+      const wc = 3e4 * caseVariants(rw) * (rw.toLowerCase()===w?1:6);
+      const before = raw.slice(0,i), after = raw.slice(i+w.length);
+      const bt = text.slice(0,i), at = text.slice(i+w.length);
+      if (depth < 3){
+        // try more words in the rest
+        search(at, after, cost*wc*segGuesses(before).g, what.concat(['the word "'+w+'"'], segGuesses(before).what), depth+1);
+      }
+      const sb = segGuesses(before), sa = segGuesses(after);
+      const g = cost * wc * sb.g * sa.g * (before && after ? 4 : 1);
+      if (!best || g < best.g) best = {g, what: what.concat(['the word "'+w+'"'], sb.what, sa.what)};
+    }
+    if (!found && depth > 0){
+      const s = segGuesses(raw), g = cost * s.g;
+      if (!best || g < best.g) best = {g, what: what.concat(s.what)};
+    }
+  })(un, p, 1, [], 0);
+  if (best && best.g < r.bf){ r.guesses = best.g; r.stage = 2; r.what = [...new Set(best.what)]; return fin(r); }
+  r.guesses = r.bf; r.stage = 3; return fin(r);
+}
+function fin(r){ r.guesses = Math.max(1, Math.min(r.guesses, r.bf)); r.bits = Math.log2(r.guesses); return r; }
+function secs(r, rate){ return r.guesses / 2 / rate; }   // on average an attacker finds it halfway through
+
+/* ---------- formatting ---------- */
+function fmtTime(s){
+  if (s < 0.001) return "instantly";
+  if (s < 1) return "less than a second";
+  if (s < 60) return plural(Math.floor(s), "second");
+  if (s < 3600) return plural(Math.floor(s/60), "minute");
+  if (s < 86400) return plural(Math.floor(s/3600), "hour");
+  if (s < 30.44*86400) return plural(Math.floor(s/86400), "day");
+  if (s < YEAR) return plural(Math.floor(s/(30.44*86400)), "month");
+  return fmtYears(s / YEAR);
+}
+function plural(n, w){ return n + " " + w + (n===1?"":"s"); }
+function fmtYears(y){
+  if (y < 1) return "under a year";
+  if (y < 100) return plural(Math.floor(y), "year");
+  if (y < 1000) return plural(Math.floor(y/100), "century").replace("centurys","centuries");
+  const big = [[1e3,"thousand"],[1e6,"million"],[1e9,"billion"],[1e12,"trillion"],[1e15,"quadrillion"],[1e18,"quintillion"]];
+  if (y >= 1e21) return "10^" + Math.floor(Math.log10(y)) + " years";
+  for (let i = big.length-1; i >= 0; i--) if (y >= big[i][0]) return Math.floor(y/big[i][0]) + " " + big[i][1] + " years";
+}
+function fmtNum(n){
+  if (n < 1e6) return Math.round(n).toLocaleString();
+  const e = Math.floor(Math.log10(n)), names = {6:"million",9:"billion",12:"trillion",15:"quadrillion",18:"quintillion"};
+  if (e < 21){ const k = Math.floor(e/3)*3; return (n/Math.pow(10,k)).toFixed(1).replace(/\.0$/,"") + " " + names[k]; }
+  return (n/Math.pow(10,e)).toFixed(1) + "×10^" + e;
+}
+function score(s){ // 0..100 on a log scale: 1s -> 0, age of universe -> ~100
+  if (s <= 0) return 0;
+  return Math.max(0, Math.min(100, Math.round(Math.log10(Math.max(s,1)) / Math.log10(UNIVERSE*10) * 100)));
+}
+function tier(sc){ return sc < 25 ? 0 : sc < 45 ? 1 : sc < 65 ? 2 : sc < 85 ? 3 : 4; }
+const TIERCOL = ["var(--c1)","var(--c2)","var(--text)","var(--c3)","var(--c4)"];
+const TIERNAME = ["Cracked fast","Weak","Okay","Strong","Uncrackable"];
+
+/* ---------- UI: live check ---------- */
+const $ = id => document.getElementById(id);
+const pw = $("pw");
+let cur = analyze("");
+
+function update(){
+  const p = pw.value; cur = analyze(p);
+  const c = classes(p);
+  document.querySelectorAll("#cs span").forEach(s => s.classList.toggle("on", !!c[s.dataset.k]));
+  $("len").textContent = p.length; $("bits").textContent = p ? Math.round(cur.bits) : 0;
+  $("combos").textContent = p ? fmtNum(cur.guesses) : 0;
+  const s = secs(cur, ATTACKERS[atkIdx].rate), sc = p ? score(s) : 0, t = tier(sc);
+  $("vtime").textContent = p ? fmtTime(s) : "—";
+  $("vtime").className = "time s" + t;
+  $("vlbl").textContent = p ? TIERNAME[t] + " · time to crack" : "Time to crack";
+  $("vscore").textContent = sc;
+  $("meter").style.width = sc + "%"; $("meter").style.background = TIERCOL[t];
+  document.querySelectorAll("#topbar i").forEach((b,i) => b.style.background = p && i <= t ? TIERCOL[t] : "");
+  $("vwhy").textContent = !p ? "Start typing." :
+    cur.stage === 3 ? "No words or patterns found, so the attacker has to try every combination." :
+    "Found " + cur.what.join(" + ") + ". Crackers try those first.";
+  if (s > UNIVERSE) $("vwhy").textContent += " That's longer than the universe has existed.";
+  tipsFor(p, c);
+  ATTACKERS.forEach((a,i) => $("at"+i).textContent = p ? fmtTime(secs(cur, a.rate)) : "—");
+  checkLevel();
+}
+function tipsFor(p, c){
+  const t = [];
+  if (!p){ $("tips").innerHTML = ""; return; }
+  if (p.length < 12) t.push("Make it longer. Every extra character multiplies the work.");
+  if (cur.stage < 3) t.push("Avoid real words, names, years and keyboard patterns. Leetspeak like p@55w0rd doesn't fool crackers.");
+  if (!c.u) t.push("Add a capital letter somewhere other than the start.");
+  if (!c.d) t.push("Add numbers in the middle, not just at the end.");
+  if (!c.s) t.push("Add a symbol like # % or ~.");
+  if (!t.length) t.push("Looks great. Keep it in a password manager and turn on two-factor login.");
+  $("tips").innerHTML = ""; t.forEach(x => { const li = document.createElement("li"); li.textContent = x; $("tips").appendChild(li); });
+}
+pw.addEventListener("input", update);
+pw.addEventListener("keydown", e => { if (e.key === "Enter") crack(); });
+$("eye").onclick = () => { hidden = !hidden; pw.type = hidden ? "password" : "text"; $("eye").textContent = hidden ? "Show" : "Hide"; };
+
+/* attackers */
+ATTACKERS.forEach((a,i) => {
+  const r = document.createElement("div"); r.className = "r" + (i===atkIdx?" on":"");
+  r.innerHTML = '<div class="n"><b></b><span></span></div><div class="sp"></div><div class="t" id="at'+i+'">—</div>';
+  r.querySelector("b").textContent = a.name; r.querySelector(".n span").textContent = a.sub;
+  r.querySelector(".sp").textContent = fmtNum(a.rate) + " guesses/s";
+  r.onclick = () => { atkIdx = i; document.querySelectorAll(".atk .r").forEach((x,j)=>x.classList.toggle("on", j===i)); update(); };
+  $("atk").appendChild(r);
+});
+
+/* ---------- cracker animation ---------- */
+function log(t, cls){ const d = document.createElement("div"); d.textContent = t; if (cls) d.className = cls; $("log").appendChild(d); $("log").scrollTop = 1e9; }
+function setStage(n, hit){
+  [...$("stages").children].forEach((d,i) => { d.className = i+1 < n ? "done" : i+1 === n ? (hit ? "hit" : "on") : ""; });
+}
+const ALL = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*?";
+function rndFrom(set, n){ let s = ""; for (let i=0;i<n;i++) s += set[Math.floor(Math.random()*set.length)]; return s; }
+function poolChars(p){ const c = classes(p); return (c.l?"abcdefghijklmnopqrstuvwxyz":"")+(c.u?"ABCDEFGHIJKLMNOPQRSTUVWXYZ":"")+(c.d?"0123456789":"")+(c.s?"!@#$%^&*?~":"")+(c.o?"éßøñ":"") || "a"; }
+function mutate(){
+  const w = WORDS[Math.floor(Math.random()*WORDS.length)];
+  const f = [x=>x, x=>x[0].toUpperCase()+x.slice(1), x=>[...x].map(c=>({a:"4",e:"3",o:"0",s:"$",i:"1"})[c]||c).join(""), x=>x.toUpperCase()];
+  const tail = ["","1","123","!","2024","69","2010","07","!!","#1"];
+  return f[Math.floor(Math.random()*f.length)](w) + tail[Math.floor(Math.random()*tail.length)];
+}
+function crack(){
+  const p = pw.value;
+  if (!p){ pw.focus(); return; }
+  if (running) cancelAnimationFrame(running.raf);
+  const a = ATTACKERS[atkIdx], r = analyze(p);
+  const total = secs(r, a.rate) * 2;           // worst case = full search; we stop at the real position
+  const target = secs(r, a.rate);              // average position where it's found
+  const CAP = 1000 * YEAR;                     // the animation gives up after 1,000 attacker-years
+  const end = Math.min(target, CAP), gives = target > CAP;
+  const dur = 1400 + Math.min(5200, Math.log10(Math.max(end,1)+1) * 450);
+  $("log").innerHTML = ""; $("guess").className = "guess";
+  $("tatk").textContent = a.name + " · " + fmtNum(a.rate) + "/s";
+  $("run").disabled = true;
+  const st = {t0:performance.now(), phase:0, lastLog:0};
+  running = st;
+
+  // phase plan: stage 1 always runs briefly; stage 2 if the password isn't plain brute-force; else stage 3
+  const plan = [];
+  plan.push({stage:1, ms: r.stage===1 ? dur : 900});
+  if (r.stage >= 2) plan.push({stage:2, ms: r.stage===2 ? dur : 900});
+  if (r.stage === 3) plan.push({stage:3, ms: dur});
+  const totalMs = plan.reduce((s,x)=>s+x.ms,0);
+  log("> target hash loaded · attacker: " + a.name.toLowerCase(), "hi");
+  log("> stage 1: trying the most common passwords and keyboard patterns");
+
+  function frame(now){
+    let el = now - st.t0, acc = 0, ph = plan[plan.length-1], k = plan.length-1;
+    for (let i=0;i<plan.length;i++){ if (el < acc + plan[i].ms){ ph = plan[i]; k = i; break; } acc += plan[i].ms; }
+    const local = Math.min(1, (el - acc) / ph.ms), last = k === plan.length-1;
+    if (k !== st.phase){
+      st.phase = k;
+      if (ph.stage === 2){ log("  no match in the common list", ""); log("> stage 2: dictionary words + rules (caps, leetspeak, numbers, years)"); }
+      if (ph.stage === 3){ log("  no word or pattern found", ""); log("> stage 3: brute force — every combination of " + poolOf(p) + " characters, " + p.length + " long"); }
+    }
+    setStage(ph.stage, false);
+    // attacker time shown: grows on a log curve so you can see the scale
+    const t = last ? Math.pow(end+1, local) - 1 : (ph.stage===1 ? 0.0001 : Math.min(end, 30)) * local;
+    const g = Math.min(t * a.rate, r.guesses);
+    $("cg").textContent = fmtNum(Math.max(1,g));
+    $("ct").textContent = fmtTime(t).replace("instantly","0 s");
+    const pct = target > 0 ? Math.min(100, t / target * 100) : 100;
+    $("cp").textContent = pct >= 1 ? pct.toFixed(0)+"%" : pct > 0 ? (pct < 1e-6 ? "~0%" : pct.toPrecision(2)+"%") : "0%";
+    $("cprog").style.width = Math.max(pct, 0) + "%";
+    // the candidate being tried right now
+    let cand = ph.stage === 1 ? COMMON[Math.floor(Math.random()*COMMON.length)]
+             : ph.stage === 2 ? mutate()
+             : rndFrom(poolChars(p), p.length);
+    $("guess").textContent = cand;
+    if (now - st.lastLog > 140){ st.lastLog = now; log("  " + cand); }
+    if (el < totalMs){ st.raf = requestAnimationFrame(frame); return; }
+    // finished
+    $("run").disabled = false; running = null;
+    if (gives){
+      $("guess").textContent = "????????".slice(0, Math.min(8,p.length)) ;
+      $("ct").textContent = "1,000 years";
+      log("> gave up after 1,000 years of guessing — still " + fmtTime(target) + " to go on average", "ok");
+      $("tstatus").textContent = "survived · the attacker gave up";
+    } else {
+      setStage(ph.stage, true);
+      $("guess").textContent = p; $("guess").className = "guess hit";
+      $("cg").textContent = fmtNum(r.guesses/2); $("ct").textContent = fmtTime(target).replace("instantly","0 s"); $("cp").textContent = "100%"; $("cprog").style.width = "100%";
+      log("> MATCH: " + p + "  (stage " + r.stage + ", after " + fmtTime(target) + ")", "bad");
+      $("tstatus").textContent = "cracked in stage " + r.stage;
+    }
+  }
+  $("tstatus").textContent = "cracking…";
+  st.raf = requestAnimationFrame(frame);
+}
+$("run").onclick = crack;
+
+/* ---------- challenges ---------- */
+const LEVELS = [
+  {t:"Warm-up", d:"Survive 1 day against the GPU. 8 characters max.", max:8, need:24*3600},
+  {t:"Lowercase only", d:"Only a-z. Survive 1 year against the GPU.", only:/^[a-z]+$/, need:YEAR},
+  {t:"Numbers only", d:"Only 0-9. Survive 1 month against the GPU.", only:/^[0-9]+$/, need:30.44*24*3600},
+  {t:"Short and strong", d:"10 characters max. Survive 1,000 years against the GPU.", max:10, need:1000*YEAR},
+  {t:"No symbols", d:"Letters and numbers only. Survive 1 million years.", only:/^[a-zA-Z0-9]+$/, need:1e6*YEAR},
+  {t:"Passphrase", d:"Use at least 2 real words (crackers know them). Survive 100 years.", words:2, need:100*YEAR},
+  {t:"Outlast the universe", d:"14 characters max. Survive longer than the universe has existed.", max:14, need:UNIVERSE},
+  {t:"Beat the GPU farm", d:"Score 100 against the GPU farm.", farm:true, need:0}
+];
+let lvl = 0, done = {};
+try { done = JSON.parse(localStorage.getItem("cracklab-done") || "{}"); } catch(e) {}
+function saveDone(){ try { localStorage.setItem("cracklab-done", JSON.stringify(done)); } catch(e) {} }
+function wordsIn(p){ const u = unleet(p); return WORDS.filter(w => w.length >= 3 && u.includes(w)).length; }
+function rules(L, p){
+  const s = secs(analyze(p), ATTACKERS[3].rate), out = [];
+  if (L.max) out.push([p.length <= L.max && p.length > 0, L.max + " characters or fewer"]);
+  if (L.only) out.push([L.only.test(p), "only the allowed characters"]);
+  if (L.words) out.push([wordsIn(p) >= L.words, "contains " + L.words + "+ real words"]);
+  if (L.farm) out.push([score(secs(analyze(p), ATTACKERS[4].rate)) >= 100, "score 100 vs the GPU farm (now " + (p ? score(secs(analyze(p), ATTACKERS[4].rate)) : 0) + ")"]);
+  else out.push([s >= L.need, "lasts " + fmtTime(L.need) + " (now " + (p ? fmtTime(s) : "—") + ")"]);
+  return out;
+}
+function drawLevels(){
+  $("levels").innerHTML = "";
+  LEVELS.forEach((L,i) => {
+    const d = document.createElement("div"); d.className = "lv" + (done[i]?" done":"") + (i===lvl?" cur":"");
+    d.innerHTML = '<div class="edge"></div><div class="num">' + String(i+1).padStart(2,"0") + '</div><div class="info"><b></b><span></span></div><div class="st"></div>';
+    d.querySelector("b").textContent = L.t; d.querySelector(".info span").textContent = L.d;
+    d.querySelector(".st").textContent = done[i] ? "cleared" : i===lvl ? "playing" : "—";
+    d.onclick = () => { lvl = i; drawLevels(); checkLevel(); pw.focus(); };
+    $("levels").appendChild(d);
+  });
+  const n = Object.keys(done).length;
+  $("total").textContent = n + " / " + LEVELS.length + " cleared" + (n === LEVELS.length ? " · you beat Crack Lab" : "");
+}
+function checkLevel(){
+  const L = LEVELS[lvl], p = pw.value, rs = rules(L, p), ok = p && rs.every(x=>x[0]);
+  const g = $("goal"); g.className = "goal show" + (ok ? " win" : "");
+  g.innerHTML = "<b></b><ul></ul>"; g.querySelector("b").textContent = "Level " + (lvl+1) + ": " + L.t + (ok ? " — cleared!" : "");
+  rs.forEach(([y,t]) => { const li = document.createElement("li"); li.className = y ? "y" : "n"; li.textContent = (y ? "✓ " : "· ") + t; g.querySelector("ul").appendChild(li); });
+  if (ok && !done[lvl]){ done[lvl] = 1; saveDone(); drawLevels(); }
+}
+
+/* ---------- examples + generator ---------- */
+EXAMPLES.forEach(e => {
+  const b = document.createElement("button"); b.textContent = e;
+  const s = document.createElement("span"); s.textContent = "GPU farm: " + fmtTime(secs(analyze(e), ATTACKERS[4].rate)); b.appendChild(s);
+  b.onclick = () => { pw.value = e; update(); pw.scrollIntoView({behavior:"smooth", block:"center"}); };
+  $("ex").appendChild(b);
+});
+const GEN = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&*+-=?@^_~";
+function generate(){
+  for (;;){
+    const buf = new Uint32Array(20); crypto.getRandomValues(buf);
+    let s = ""; for (const v of buf) s += GEN[v % GEN.length];
+    const c = classes(s); if (c.l && c.u && c.d && c.s) return s;
+  }
+}
+$("genbtn").onclick = () => { $("gencode").textContent = generate(); };
+$("gentest").onclick = () => { const v = $("gencode").textContent; if (v.length === 20){ pw.value = v; update(); } };
+
+$("yr").textContent = new Date().getFullYear();
+drawLevels(); update();
+</script>
+</body>
+</html>
