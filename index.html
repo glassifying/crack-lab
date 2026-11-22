@@ -8,9 +8,10 @@
 <style>
 
 :root{
-  --bg:#111; --panel:#171717; --line:#2a2a2a; --line2:#3a3a3a;
-  --text:#dcdcdc; --dim:#8c8c8c; --mute:#5a5a5a;
-  --c1:#d9443b; --c2:#e0a03a; --c3:#4aa8a0; --c4:#5b7fd1;
+  --bg:#f4f7ff; --panel:#ffffff; --line:#e2e8f5; --line2:#cdd6ea;
+  --text:#18203a; --dim:#55607a; --mute:#8b95ad;
+  --c1:#ff3b5c; --c2:#ff9500; --c3:#12c26b; --c4:#2f80ff; --c5:#ffcc00;
+  --r:14px;
   --mono:Consolas,"Courier New",monospace;
   --sans:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
 }
@@ -65,7 +66,7 @@ header .tagline{color:var(--mute);font-family:var(--mono);font-size:11px}
   .meter{height:6px;background:var(--bg);border-top:1px solid var(--line)}
   .meter i{display:block;height:100%;width:0;transition:width .25s,background .25s}
 
-  .s0{color:var(--c1)} .s1{color:var(--c2)} .s2{color:var(--text)} .s3{color:var(--c3)} .s4{color:var(--c4)}
+  .s0{color:var(--c1)} .s1{color:var(--c2)} .s2{color:#d9a400} .s3{color:var(--c3)} .s4{color:var(--c4)}
 
   /* attacker table */
   .atk{border:1px solid var(--line);background:var(--panel)}
@@ -78,6 +79,13 @@ header .tagline{color:var(--mute);font-family:var(--mono);font-size:11px}
   .atk .sp{font-family:var(--mono);font-size:11px;color:var(--mute);align-self:center}
   .atk .t{font-family:var(--mono);font-size:13px;text-align:right;align-self:center}
 
+  .filters{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+  .filters button{font-family:var(--mono);font-size:12px;color:var(--dim);background:transparent;border:1px solid var(--line2);padding:5px 12px;cursor:pointer}
+  .filters button:hover{color:var(--text)}
+  .filters button.on{color:var(--bg);background:var(--text);border-color:var(--text)}
+  .atk div.r.orange .n b,.atk div.r.orange .t{color:var(--c2)}
+  .atk div.r.orange{box-shadow:inset 3px 0 0 #6b4c1c}
+  .atk div.r.orange.on{box-shadow:inset 3px 0 0 var(--c2)}
   .tips{margin:10px 0 0 18px;color:var(--dim);font-size:13px}
   .tips li{margin-top:3px}
 
@@ -130,6 +138,89 @@ header .tagline{color:var(--mute);font-family:var(--mono);font-size:11px}
     .verdict .time{font-size:24px} .guess{font-size:18px}
     .lv{grid-template-columns:4px 40px 1fr} .lv .st{grid-column:3;padding:0 0 10px}
   }
+
+  /* ---------- bright theme + rounded corners ---------- */
+  body{background:linear-gradient(180deg,#eaf1ff 0,#f4f7ff 320px)}
+  header{background:#fff;border-bottom:1px solid var(--line)}
+  .mark{border-color:var(--c4);border-radius:4px} .mark::after{border-color:var(--c4);border-radius:5px 5px 0 0}
+  .intro h1{color:var(--text)}
+  h2{color:var(--c4)}
+  .btn{background:#fff;color:var(--text);border:1px solid var(--line2);border-radius:999px;padding:9px 18px}
+  .btn:hover{background:#eef3ff}
+  .btn.go{background:var(--c1);border-color:var(--c1);color:#fff}
+  .btn[disabled]{opacity:.55}
+  .box,.atk,.term,.goal,.lv,.ex button,.gen code,.inrow input{border-radius:var(--r)}
+  .box,.atk,.term{overflow:hidden;box-shadow:0 4px 18px rgba(40,70,140,.07)}
+  .box .top{height:6px}
+  .inrow input{background:#f7f9ff;border:2px solid var(--line2);border-radius:12px}
+  .inrow input:focus{border-color:var(--c4);background:#fff}
+  .meta .cs span{padding:2px 8px;border-radius:999px;background:#eef2fa;margin-right:4px}
+  .meta .cs span.on{background:var(--c4);color:#fff}
+  .meter{height:10px;background:#eef2fa;border-top:0;margin:0 18px 18px;border-radius:999px;overflow:hidden}
+  .meter i{border-radius:999px}
+  .atk div.r:hover{background:#f3f7ff}
+  .atk div.r.on{background:#fff1f3;box-shadow:inset 4px 0 0 var(--c1)}
+  .atk div.r.orange{box-shadow:inset 4px 0 0 #ffd699}
+  .atk div.r.orange.on{background:#fff6e8;box-shadow:inset 4px 0 0 var(--c2)}
+  .filters button{border-radius:999px;background:#fff}
+  .filters button.on{background:var(--c4);border-color:var(--c4);color:#fff}
+  .term{background:#fff}
+  .term .bar{background:#f7f9ff}
+  .stages div.on{color:var(--c2);background:#fff6e8;box-shadow:inset 0 -3px 0 var(--c2)}
+  .stages div.hit{background:#fff1f3}
+  .guess{color:var(--text)}
+  .prog{height:8px;background:#eef2fa} .prog i{background:linear-gradient(90deg,var(--c2),var(--c1));border-radius:0 999px 999px 0}
+  .log{background:#fbfcff}
+  .log div.hi{color:var(--c4)} .log div.ok{color:var(--c3)}
+  .lv{border:1px solid var(--line);overflow:hidden}
+  .lv .edge{background:var(--line)}
+  .lv.done .edge{background:var(--c3)} .lv.done{background:#f0fcf5}
+  .lv.cur{outline:2px solid var(--c4);outline-offset:-1px}
+  .lv .num{color:var(--c4);font-weight:700}
+  .goal{border-left:5px solid var(--c2)}
+  .goal.win{background:#f0fcf5}
+  .ex button{border-left:5px solid var(--c4)}
+  .ex button:nth-child(5n+2){border-left-color:var(--c3)} .ex button:nth-child(5n+3){border-left-color:var(--c2)}
+  .ex button:nth-child(5n+4){border-left-color:var(--c1)} .ex button:nth-child(5n+5){border-left-color:var(--c5)}
+  .ex button:hover{background:#f3f7ff}
+  .gen code{background:#fff}
+  .note{color:var(--mute)}
+  footer{background:#fff}
+
+  /* ---------- gauntlet ---------- */
+  .gstart{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .gstart .total{margin:0 0 0 6px}
+  .lv{cursor:default}
+  .lv.lock{opacity:.5} .lv.lock .st{color:var(--mute)}
+  .lv.cur .st{color:var(--c4);font-weight:700}
+  body.ingx{overflow:hidden}
+  body.ingx header, body.ingx main, body.ingx footer{display:none}
+  .gx{position:fixed;inset:0;z-index:50;overflow:auto;background:linear-gradient(180deg,#eaf1ff 0,#f4f7ff 320px)}
+  .gx[hidden]{display:none}
+  .gwrap{max-width:900px;margin:0 auto;padding:34px 24px 60px}
+  .gtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:46px;gap:12px;flex-wrap:wrap}
+  .gexit{font-family:var(--sans);font-size:42px;font-weight:300;letter-spacing:.02em;background:none;border:0;color:var(--text);cursor:pointer;padding:0}
+  .gexit:hover{color:var(--c1)}
+  .gpips{display:flex;gap:6px}
+  .gpips i{width:26px;height:10px;border-radius:999px;background:var(--line2)}
+  .gpips i.d{background:var(--c3)} .gpips i.c{background:var(--c4)}
+  .gl{margin-top:26px;grid-template-columns:4px 64px 1fr auto}
+  .gl .num{font-size:18px;padding-top:16px} .gl .info{padding:14px 14px 14px 0}
+  .gl .info b{font-size:17px} .gl .info span{font-size:15px}
+  .gline{height:2px;background:var(--line2);border-radius:2px;margin:26px 0}
+  .inrow.g{padding:0} .inrow.g input{font-size:28px;padding:14px 18px}
+  .inrow.g .btn{font-size:18px;padding:12px 26px}
+  .grules{list-style:none;margin-top:16px;font-family:var(--mono);font-size:13px}
+  .grules li{margin-top:4px} .grules li.y{color:var(--c3)} .grules li.n{color:var(--mute)}
+  .gmsg{margin-top:20px;border-radius:var(--r);padding:0;font-size:16px}
+  .gmsg.win,.gmsg.lose,.gmsg.info{padding:16px 18px}
+  .gmsg.win{background:#e6faf0;color:#0b7a43;border:1px solid #b9edd2}
+  .gmsg.lose{background:#fff0f2;color:#c8102e;border:1px solid #ffc9d2}
+  .gmsg.info{background:#eef3ff;color:var(--c4);border:1px solid #cddcff}
+  .gmsg .btn{margin-left:12px}
+  .shake{animation:sh .4s}
+  @keyframes sh{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+  @media (max-width:600px){ .gexit{font-size:32px} .inrow.g input{font-size:20px} .gl{grid-template-columns:4px 44px 1fr} }
 </style>
 </head>
 <body>
@@ -172,7 +263,9 @@ header .tagline{color:var(--mute);font-family:var(--mono);font-size:11px}
   <ul class="tips" id="tips"></ul>
 
   <h2>Who's attacking? (click one)</h2>
+  <div class="filters" id="modes"><button data-m="normal" class="on">Everyday attackers</button><button data-m="super">Supercomputers</button></div>
   <div class="atk" id="atk"></div>
+  <p class="note" id="atknote" style="display:none">Supercomputer speeds are rough guesses. LineShine is rated at 2.2 exaflops, which we count as about 3 quadrillion password guesses per second. The future rows assume the fastest supercomputer keeps getting about 10× faster every 5 years, which may not hold.</p>
 
   <h2>Watch it get cracked</h2>
   <div class="term">
@@ -188,16 +281,28 @@ header .tagline{color:var(--mute);font-family:var(--mono);font-size:11px}
     <div class="log" id="log"></div>
   </div>
 
-  <h2>Challenges</h2>
-  <div class="total" id="total"></div>
+  <h2>The Gauntlet</h2>
+  <p class="note" style="margin:-4px 0 12px">10 levels in a row. You can't skip ahead, and the rest of the page (including the example passwords) is hidden while you play. The attacker you have selected when you start is locked in for the whole run, and the survive-times scale to it.</p>
+  <div class="gstart"><button class="btn go" id="gstart">Start the gauntlet</button><button class="btn" id="greset">Reset progress</button><span class="total" id="total"></span></div>
   <div id="levels"></div>
-  <div class="goal" id="goal"></div>
 
   <h2>10 "uncrackable" passwords</h2>
   <p style="color:var(--dim);font-size:13px;margin-bottom:10px">20 random characters from all 4 groups. Click one to test it. Since these are posted on a public page, don't actually use them. Press Generate to make a fresh one that only you see.</p>
   <div class="ex" id="ex"></div>
   <div class="gen"><button class="btn go" id="genbtn">Generate</button><code id="gencode">—</code><button class="btn" id="gentest">Test it</button></div>
 </main>
+
+<div class="gx" id="gx" hidden>
+  <div class="gwrap">
+    <div class="gtop"><button class="gexit" id="gexit">EXIT</button><div class="gpips" id="gpips"></div></div>
+    <div class="atk"><div class="r on" id="gatk"><div class="n"><b></b><span></span></div><div class="sp"></div><div class="t" id="gat">—</div></div></div>
+    <div class="lv gl" id="glv"><div class="edge"></div><div class="num"></div><div class="info"><b></b><span></span></div><div class="st"></div></div>
+    <div class="gline"></div>
+    <div class="inrow g" id="grow"><input id="gpw" type="text" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type a password"><button class="btn" id="geye">Hide</button><button class="btn go" id="gcrack">Crack it</button></div>
+    <ul class="grules" id="grules"></ul>
+    <div class="gmsg" id="gmsg"></div>
+  </div>
+</div>
 
 <footer><div class="wrap"><span>Crack Lab</span><span id="yr"></span></div></footer>
 
@@ -207,13 +312,24 @@ const COMMON = ("123456 password 123456789 12345678 12345 qwerty 1234567 111111 
 const WORDS = ("love baby girl boy king queen star moon sun fire water ice dark light black white red blue green gold silver dog cat fish bird wolf lion tiger bear eagle shark snake horse tree rock stone river ocean sky rain snow storm thunder night day happy sad crazy cool super mega ultra power magic dream heart soul life death ghost devil demon angel hero ninja pirate knight sword shield gun bullet war peace game play player gamer pro noob boss admin user hack hacker glass apple orange lemon cherry berry candy sugar pizza burger taco coffee music rock metal party summer winter spring autumn monday friday sunday house home school teacher doctor money cash rich lucky happy smile funny pretty sexy hot cold big small little tiny giant fast slow speed racer car truck bike train plane rocket space planet earth mars alien robot cyber pixel block craft mine diamond emerald creeper zombie skeleton dragon ender nether steve alex sniper killer hunter shadow phoenix falcon cobra viper panther jaguar storm blaze frost spark bolt nova galaxy cosmic quantum matrix vector alpha beta gamma delta omega zero hero legend master monster secret private hidden correct horse battery staple purple yellow brown pink nick tang jordan michael chris david james john sarah emma olivia sophia jessica ashley taylor").split(" ");
 const KEYROWS = ["qwertyuiop","asdfghjkl","zxcvbnm","1234567890","abcdefghijklmnopqrstuvwxyz","1qaz2wsx3edc4rfv5tgb","qazwsxedcrfvtgbyhnujmikolp"];
 const EXAMPLES = ["V&<Bj*@[u;2y%&Rf9~A6","pJxUau#R4_&6YWsgZwU7","7ll)5<$Qo7/^^&/j&y{S","_A#w0g;xFfC8Bp+Bo,$v","NNF{D0Nn1o]?5rM[,kFO","w&LyEaEjBFrVJN$=X&7+","|[~p$h)C5*#OuT[1CW|p","}fZp2Z2QnW2Mh@wKB0QQ","SrR)^:}}$/o*O6$NJ>[d","&11UQ.hXSGeHL_.#=fcY"];
-const ATTACKERS = [
+const NORMAL = [
   {id:"online", name:"Guessing on a login page", sub:"The site locks you out after a few tries", rate:10},
   {id:"online2", name:"Login page, no lockout", sub:"A badly built site that lets bots spam guesses", rate:1e3},
   {id:"slow", name:"Stolen database, slow hash", sub:"Site stored passwords properly (bcrypt), one GPU", rate:1e5},
   {id:"fast", name:"Stolen database, fast hash", sub:"Site used an old hash (MD5), one gaming GPU", rate:1.6e11},
-  {id:"farm", name:"GPU farm", sub:"Hundreds of GPUs working together, fast hash", rate:1e14}
+  {id:"farm", name:"GPU farm", sub:"Hundreds of GPUs working together, fast hash", rate:1e14},
+  {id:"lineshine", name:"LineShine", sub:"The world's fastest supercomputer (China, 2026), fast hash", rate:3e15, orange:true}
 ];
+/* LineShine: 2.2 exaflops. Rough guess at cracking speed: about as much as ~20,000 gaming GPUs.
+   Future rows assume the #1 supercomputer keeps getting ~10x faster every 5 years. */
+const SUPER = [
+  {id:"ls", name:"LineShine (today)", sub:"#1 supercomputer in 2026, 2.2 exaflops, all CPUs", rate:3e15, orange:true},
+  {id:"y10", name:"Best supercomputer in 10 years", sub:"Around 2036 · about 100× LineShine", rate:3e17},
+  {id:"y20", name:"Best supercomputer in 20 years", sub:"Around 2046 · about 10,000× LineShine", rate:3e19},
+  {id:"y30", name:"Best supercomputer in 30 years", sub:"Around 2056 · about 1,000,000× LineShine", rate:3e21}
+];
+const GPU = NORMAL[3], FARM = NORMAL[4], LS = NORMAL[5];
+let ATTACKERS = NORMAL, mode = "normal";
 const LEET = {"4":"a","@":"a","8":"b","(":"c","3":"e","6":"g","9":"g","1":"i","!":"i","|":"l","0":"o","5":"s","$":"s","7":"t","+":"t","2":"z"};
 const SYMS = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~ ";
 const YEAR = 365.25*24*3600, UNIVERSE = 13.8e9*YEAR;
@@ -229,14 +345,28 @@ function poolOf(s){
   const c = classes(s); return (c.l?26:0)+(c.u?26:0)+(c.d?10:0)+(c.s?33:0)+(c.o?100:0) || 1;
 }
 function brute(s){ return s.length ? Math.pow(poolOf(s), s.length) : 1; }
+const SEPG = /[-_.\s,\/|:+~]/g;
+function comb(n, k){ let c = 1; for (let i = 1; i <= k; i++) c = c * (n - k + i) / i; return c; }
 function unleet(s){ return [...s.toLowerCase()].map(c=>LEET[c]||c).join(""); }
 function caseVariants(s){
   if (s === s.toLowerCase()) return 1;
   if (s === s[0].toUpperCase()+s.slice(1).toLowerCase() || s === s.toUpperCase()) return 2;
   return Math.pow(2, Math.min(s.length, 8));
 }
+function isCounting(d){ // "12345678910", "246810", "10987654321"...
+  if (!/^\d{3,}$/.test(d)) return false;
+  for (let a = 0; a <= 100; a++) for (const step of [1,2,5,10,-1,-2]){
+    let t = "", n = a, k = 0;
+    while (t.length < d.length && n >= 0 && k < 60){ t += n; n += step; k++; }
+    if (t === d && k >= 3) return true;
+  }
+  return false;
+}
 function isSequence(s){
   if (s.length < 3) return false;
+  const stripped = s.replace(/[-_.\s,/|:+]+/g, "");
+  if (stripped !== s && stripped.length >= 3 && (isSequence(stripped) || COMMON.includes(stripped.toLowerCase()))) return true;
+  if (isCounting(stripped)) return true;
   const l = s.toLowerCase();
   if (/^(.)\1+$/.test(l)) return true;
   for (const r of KEYROWS){ const rr = [...r].reverse().join(""); if (r.includes(l) || rr.includes(l)) return true; }
@@ -263,13 +393,27 @@ function segGuesses(seg){
 function analyze(p){
   const r = {pw:p, bf:brute(p), guesses:0, stage:3, what:[]};
   if (!p){ r.guesses = 0; return r; }
+  // separators (- _ . space etc.) are cheap for crackers: rules insert them between letters.
+  // Rate the password without them, then add only what placing them costs.
+  const stripped = p.replace(SEPG, "");
+  if (stripped && stripped !== p){
+    const sub = analyze(stripped), k = p.length - stripped.length;
+    const types = new Set(p.match(SEPG)).size;
+    const n = stripped.length, gaps = k <= n - 1 ? comb(n - 1, k) : comb(n + 1, Math.min(k, n + 1));
+    const g = sub.guesses * Math.pow(4, types) * gaps;
+    if (g < r.bf){
+      r.guesses = g; r.stage = 2;
+      r.what = sub.stage === 3 ? ["dashes/dots, which crackers strip out (the rest is random)"] : sub.what.concat(["dashes/dots between them"]);
+      return fin(r);
+    }
+  }
   const low = p.toLowerCase(), un = unleet(p);
   // stage 1: exact common password (also with simple caps/leet/1-2 trailing chars)
   let ci = COMMON.indexOf(low); if (ci < 0) ci = COMMON.indexOf(un);
   if (ci >= 0){
     r.guesses = (ci+1) * caseVariants(p) * (low===un?1:4); r.stage = 1; r.what = ["one of the most common passwords"]; return fin(r);
   }
-  if (isSequence(p)){ r.guesses = 200*p.length; r.stage = 1; r.what = ["a keyboard pattern / repeat"]; return fin(r); }
+  if (isSequence(p)){ r.guesses = 200*p.length; r.stage = 1; r.what = ["a simple pattern (counting, repeats or a keyboard row)"]; return fin(r); }
   // stage 2: dictionary words + rules (caps, leet, numbers/years/symbols added)
   let best = null;
   const dict = WORDS.concat(COMMON.filter(w=>/^[a-z]{4,}$/.test(w)));
@@ -333,7 +477,7 @@ function score(s){ // 0..100 on a log scale: 1s -> 0, age of universe -> ~100
   return Math.max(0, Math.min(100, Math.round(Math.log10(Math.max(s,1)) / Math.log10(UNIVERSE*10) * 100)));
 }
 function tier(sc){ return sc < 25 ? 0 : sc < 45 ? 1 : sc < 65 ? 2 : sc < 85 ? 3 : 4; }
-const TIERCOL = ["var(--c1)","var(--c2)","var(--text)","var(--c3)","var(--c4)"];
+const TIERCOL = ["var(--c1)","var(--c2)","var(--c5)","var(--c3)","var(--c4)"];
 const TIERNAME = ["Cracked fast","Weak","Okay","Strong","Uncrackable"];
 
 /* ---------- UI: live check ---------- */
@@ -360,7 +504,7 @@ function update(){
   if (s > UNIVERSE) $("vwhy").textContent += " That's longer than the universe has existed.";
   tipsFor(p, c);
   ATTACKERS.forEach((a,i) => $("at"+i).textContent = p ? fmtTime(secs(cur, a.rate)) : "—");
-  checkLevel();
+  if (drawnFor !== sel() && !inRun()) drawLevels();
 }
 function tipsFor(p, c){
   const t = [];
@@ -378,14 +522,25 @@ pw.addEventListener("keydown", e => { if (e.key === "Enter") crack(); });
 $("eye").onclick = () => { hidden = !hidden; pw.type = hidden ? "password" : "text"; $("eye").textContent = hidden ? "Show" : "Hide"; };
 
 /* attackers */
-ATTACKERS.forEach((a,i) => {
-  const r = document.createElement("div"); r.className = "r" + (i===atkIdx?" on":"");
+function drawAttackers(){
+ $("atk").innerHTML = "";
+ ATTACKERS.forEach((a,i) => {
+  const r = document.createElement("div"); r.className = "r" + (i===atkIdx?" on":"") + (a.orange?" orange":"");
   r.innerHTML = '<div class="n"><b></b><span></span></div><div class="sp"></div><div class="t" id="at'+i+'">—</div>';
   r.querySelector("b").textContent = a.name; r.querySelector(".n span").textContent = a.sub;
   r.querySelector(".sp").textContent = fmtNum(a.rate) + " guesses/s";
   r.onclick = () => { atkIdx = i; document.querySelectorAll(".atk .r").forEach((x,j)=>x.classList.toggle("on", j===i)); update(); };
   $("atk").appendChild(r);
-});
+ });
+ $("atknote").style.display = mode === "super" ? "block" : "none";
+}
+function setMode(m){
+  mode = m; ATTACKERS = m === "super" ? SUPER : NORMAL; atkIdx = m === "super" ? 0 : 3;
+  document.querySelectorAll("#modes button").forEach(b => b.classList.toggle("on", b.dataset.m === m));
+  drawAttackers(); update();
+}
+document.querySelectorAll("#modes button").forEach(b => b.onclick = () => setMode(b.dataset.m));
+drawAttackers();
 
 /* ---------- cracker animation ---------- */
 function log(t, cls){ const d = document.createElement("div"); d.textContent = t; if (cls) d.className = cls; $("log").appendChild(d); $("log").scrollTop = 1e9; }
@@ -472,54 +627,139 @@ function crack(){
 $("run").onclick = crack;
 
 /* ---------- challenges ---------- */
+/* Each level's difficulty is fixed (set against a "home" attacker). The time you have to survive
+   scales with whoever is selected above, so every level stays beatable against any attacker. */
 const LEVELS = [
-  {t:"Warm-up", d:"Survive 1 day against the GPU. 8 characters max.", max:8, need:24*3600},
-  {t:"Lowercase only", d:"Only a-z. Survive 1 year against the GPU.", only:/^[a-z]+$/, need:YEAR},
-  {t:"Numbers only", d:"Only 0-9. Survive 1 month against the GPU.", only:/^[0-9]+$/, need:30.44*24*3600},
-  {t:"Short and strong", d:"10 characters max. Survive 1,000 years against the GPU.", max:10, need:1000*YEAR},
-  {t:"No symbols", d:"Letters and numbers only. Survive 1 million years.", only:/^[a-zA-Z0-9]+$/, need:1e6*YEAR},
-  {t:"Passphrase", d:"Use at least 2 real words (crackers know them). Survive 100 years.", words:2, need:100*YEAR},
-  {t:"Outlast the universe", d:"14 characters max. Survive longer than the universe has existed.", max:14, need:UNIVERSE},
-  {t:"Beat the GPU farm", d:"Score 100 against the GPU farm.", farm:true, need:0}
+  {t:"Warm-up", c:"8 characters max, so you need all 4 types (a-z, A-Z, 0-9, symbols).", max:8, base:GPU, need:3600},
+  {t:"Lowercase only", c:"Only a-z.", only:/^[a-z]+$/, base:GPU, need:YEAR},
+  {t:"Numbers only", c:"Only 0-9.", only:/^[0-9]+$/, base:GPU, need:30.44*24*3600},
+  {t:"Short and strong", c:"10 characters max.", max:10, base:GPU, need:YEAR},
+  {t:"No symbols", c:"Letters and numbers only.", only:/^[a-zA-Z0-9]+$/, base:GPU, need:1e6*YEAR},
+  {t:"Passphrase", c:"Use at least 2 real words (crackers know them).", words:2, base:GPU, need:100*YEAR},
+  {t:"Outlast the universe", c:"16 characters max. Hint: use all 4 types.", max:16, base:GPU, need:UNIVERSE},
+  {t:"Heavy hitter", c:"Any password, but it has to be a monster.", base:FARM, need:UNIVERSE*10},
+  {t:"Beat LineShine", c:"As hard as surviving 1 billion years against LineShine.", base:LS, need:1e9*YEAR},
+  {t:"Future-proof", c:"As hard as surviving 1,000 years against the best supercomputer 30 years from now.", base:SUPER[3], need:1000*YEAR}
 ];
-let lvl = 0, done = {};
-try { done = JSON.parse(localStorage.getItem("cracklab-done") || "{}"); } catch(e) {}
-function saveDone(){ try { localStorage.setItem("cracklab-done", JSON.stringify(done)); } catch(e) {} }
+function sel(){ return ATTACKERS[atkIdx]; }
+function needFor(L, att){ return L.need * L.base.rate / (att || sel()).rate; }   // same number of guesses, any attacker
+function fmtNeed(s){
+  if (s >= 1) return fmtTime(s);
+  const u = [[1e-3,"millisecond"],[1e-6,"microsecond"],[1e-9,"nanosecond"],[1e-12,"picosecond"]];
+  for (const [d,n] of u) if (s >= d){ const v = s/d; return (v < 10 ? v.toFixed(1).replace(/\.0$/,"") : Math.round(v)) + " " + n + (v >= 1.05 ? "s" : ""); }
+  return "less than a picosecond";
+}
+function short(att){ return att.name.replace(" (today)",""); }
+function descFor(L, att){ att = att || sel(); return L.c + " Survive " + fmtNeed(needFor(L, att)) + " against " + short(att) + "."; }
 function wordsIn(p){ const u = unleet(p); return WORDS.filter(w => w.length >= 3 && u.includes(w)).length; }
-function rules(L, p){
-  const s = secs(analyze(p), ATTACKERS[3].rate), out = [];
+function rules(L, p, att){
+  att = att || sel();
+  const s = secs(analyze(p), att.rate), need = needFor(L, att), out = [];
   if (L.max) out.push([p.length <= L.max && p.length > 0, L.max + " characters or fewer"]);
   if (L.only) out.push([L.only.test(p), "only the allowed characters"]);
   if (L.words) out.push([wordsIn(p) >= L.words, "contains " + L.words + "+ real words"]);
-  if (L.farm) out.push([score(secs(analyze(p), ATTACKERS[4].rate)) >= 100, "score 100 vs the GPU farm (now " + (p ? score(secs(analyze(p), ATTACKERS[4].rate)) : 0) + ")"]);
-  else out.push([s >= L.need, "lasts " + fmtTime(L.need) + " (now " + (p ? fmtTime(s) : "—") + ")"]);
+  out.push([p && s >= need, "lasts " + fmtNeed(need) + " (now " + (p ? fmtNeed(s) : "—") + ")"]);
   return out;
 }
+
+/* ---------- the gauntlet: levels in order, no skipping ---------- */
+let G = {lvl:0, mode:"normal", idx:3}, drawnFor = null;
+try { const g = JSON.parse(localStorage.getItem("cracklab-gauntlet") || "null"); if (g && typeof g.lvl === "number") G = g; } catch(e) {}
+function saveG(){ try { localStorage.setItem("cracklab-gauntlet", JSON.stringify(G)); } catch(e) {} }
+function gAtt(){ return ((G.mode === "super" ? SUPER : NORMAL)[G.idx]) || GPU; }
+function inRun(){ return G.lvl > 0 && G.lvl < LEVELS.length; }
+
 function drawLevels(){
-  $("levels").innerHTML = "";
+  drawnFor = sel(); $("levels").innerHTML = "";
+  const att = inRun() ? gAtt() : sel();
   LEVELS.forEach((L,i) => {
-    const d = document.createElement("div"); d.className = "lv" + (done[i]?" done":"") + (i===lvl?" cur":"");
+    const st = i < G.lvl ? "done" : i === G.lvl ? "cur" : "lock";
+    const d = document.createElement("div"); d.className = "lv " + st;
     d.innerHTML = '<div class="edge"></div><div class="num">' + String(i+1).padStart(2,"0") + '</div><div class="info"><b></b><span></span></div><div class="st"></div>';
-    d.querySelector("b").textContent = L.t; d.querySelector(".info span").textContent = L.d;
-    d.querySelector(".st").textContent = done[i] ? "cleared" : i===lvl ? "playing" : "—";
-    d.onclick = () => { lvl = i; drawLevels(); checkLevel(); pw.focus(); };
+    d.querySelector("b").textContent = L.t;
+    d.querySelector(".info span").textContent = st === "lock" ? L.c : descFor(L, att);
+    d.querySelector(".st").textContent = st === "done" ? "cleared" : st === "cur" ? "up next" : "locked";
     $("levels").appendChild(d);
   });
-  const n = Object.keys(done).length;
-  $("total").textContent = n + " / " + LEVELS.length + " cleared" + (n === LEVELS.length ? " · you beat Crack Lab" : "");
+  const won = G.lvl >= LEVELS.length;
+  $("gstart").textContent = won ? "Play again" : G.lvl === 0 ? "Start the gauntlet" : "Continue · level " + (G.lvl+1);
+  $("total").textContent = won ? "You beat the gauntlet" : G.lvl + " / " + LEVELS.length + " cleared" + (inRun() ? " · locked attacker: " + short(gAtt()) : "");
 }
-function checkLevel(){
-  const L = LEVELS[lvl], p = pw.value, rs = rules(L, p), ok = p && rs.every(x=>x[0]);
-  const g = $("goal"); g.className = "goal show" + (ok ? " win" : "");
-  g.innerHTML = "<b></b><ul></ul>"; g.querySelector("b").textContent = "Level " + (lvl+1) + ": " + L.t + (ok ? " — cleared!" : "");
-  rs.forEach(([y,t]) => { const li = document.createElement("li"); li.className = y ? "y" : "n"; li.textContent = (y ? "✓ " : "· ") + t; g.querySelector("ul").appendChild(li); });
-  if (ok && !done[lvl]){ done[lvl] = 1; saveDone(); drawLevels(); }
+function openG(){
+  document.body.classList.add("ingx"); $("gx").hidden = false; window.scrollTo(0,0);
+  $("gpw").value = ""; drawG(); $("gpw").focus();
 }
+function closeG(){
+  document.body.classList.remove("ingx"); $("gx").hidden = true; $("gpw").value = "";
+  drawLevels(); $("levels").scrollIntoView({block:"center"});
+}
+function drawG(){
+  const a = gAtt(), won = G.lvl >= LEVELS.length;
+  $("gpips").innerHTML = LEVELS.map((_,i) => '<i class="' + (i < G.lvl ? "d" : i === G.lvl ? "c" : "") + '"></i>').join("");
+  const r = $("gatk"); r.className = "r on" + (a.orange ? " orange" : "");
+  r.querySelector("b").textContent = a.name; r.querySelector(".n span").textContent = a.sub;
+  r.querySelector(".sp").textContent = fmtNum(a.rate) + " guesses/s";
+  const lv = $("glv");
+  lv.className = "lv gl" + (won ? " done" : "");
+  lv.querySelector(".num").textContent = won ? "★" : String(G.lvl+1).padStart(2,"0");
+  lv.querySelector("b").textContent = won ? "You beat the gauntlet!" : LEVELS[G.lvl].t;
+  lv.querySelector(".info span").textContent = won ? "All 10 levels cleared against " + short(a) + "." : descFor(LEVELS[G.lvl], a);
+  lv.querySelector(".st").textContent = won ? "" : "level " + (G.lvl+1) + " / " + LEVELS.length;
+  $("grow").style.display = won ? "none" : "";
+  $("gpw").disabled = false; $("gcrack").disabled = false;
+  const m = $("gmsg");
+  if (won){ m.className = "gmsg win"; m.innerHTML = 'Nice. Want another run? <button class="btn go" id="gagain">Play again</button>';
+    $("gagain").onclick = () => { G.lvl = 0; G.mode = mode; G.idx = atkIdx; saveG(); drawG(); $("gpw").focus(); }; }
+  else { m.className = "gmsg"; m.textContent = ""; }
+  gLive();
+}
+function gLive(){
+  if (G.lvl >= LEVELS.length){ $("grules").innerHTML = ""; $("gat").textContent = ""; return; }
+  const p = $("gpw").value, a = gAtt();
+  $("gat").textContent = p ? fmtNeed(secs(analyze(p), a.rate)) : "—";
+  $("grules").innerHTML = "";
+  rules(LEVELS[G.lvl], p, a).forEach(([y,t]) => { const li = document.createElement("li"); li.className = y ? "y" : "n"; li.textContent = (y ? "✓ " : "· ") + t; $("grules").appendChild(li); });
+}
+function gTry(){
+  if (G.lvl >= LEVELS.length || $("gpw").disabled) return;
+  const p = $("gpw").value, a = gAtt(), L = LEVELS[G.lvl], rs = rules(L, p, a), m = $("gmsg");
+  if (!p){ $("gpw").focus(); return; }
+  const fail = rs.find(x => !x[0]);
+  if (fail){
+    const t = secs(analyze(p), a.rate);
+    m.className = "gmsg lose";
+    m.textContent = fail === rs[rs.length-1] ? "Cracked in " + fmtNeed(t) + ". It needs to last " + fmtNeed(needFor(L, a)) + "."
+                                            : "Breaks the rules: needs " + fail[1] + ".";
+    $("grow").classList.remove("shake"); void $("grow").offsetWidth; $("grow").classList.add("shake");
+    return;
+  }
+  G.lvl++; saveG();
+  $("gpw").disabled = true; $("gcrack").disabled = true;
+  $("gpips").innerHTML = LEVELS.map((_,i) => '<i class="' + (i < G.lvl ? "d" : "") + '"></i>').join("");
+  m.className = "gmsg win";
+  m.textContent = "Survived! It lasts " + fmtNeed(secs(analyze(p), a.rate)) + " against " + short(a) + ". ";
+  const b = document.createElement("button"); b.className = "btn go"; b.textContent = G.lvl >= LEVELS.length ? "Finish" : "Next level →";
+  b.onclick = () => { $("gpw").value = ""; drawG(); $("gpw").focus(); };
+  m.appendChild(b); setTimeout(() => b.focus(), 350);
+}
+$("gstart").onclick = () => {
+  if (G.lvl >= LEVELS.length) G.lvl = 0;
+  if (G.lvl === 0){ G.mode = mode; G.idx = atkIdx; }
+  saveG(); openG();
+};
+$("greset").onclick = () => { G = {lvl:0, mode:mode, idx:atkIdx}; saveG(); drawLevels(); };
+$("gexit").onclick = closeG;
+$("gpw").addEventListener("input", () => { if ($("gmsg").classList.contains("lose") || $("gmsg").classList.contains("info")){ $("gmsg").className = "gmsg"; $("gmsg").textContent = ""; } gLive(); });
+$("gpw").addEventListener("keydown", e => { if (e.key === "Enter") gTry(); });
+["paste","drop"].forEach(ev => $("gpw").addEventListener(ev, e => { e.preventDefault(); const m = $("gmsg"); m.className = "gmsg info"; m.textContent = "No pasting in the gauntlet. Type it yourself."; }));
+$("gcrack").onclick = gTry;
+$("geye").onclick = () => { const h = $("gpw").type === "text"; $("gpw").type = h ? "password" : "text"; $("geye").textContent = h ? "Show" : "Hide"; };
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("gx").hidden) closeG(); });
 
 /* ---------- examples + generator ---------- */
 EXAMPLES.forEach(e => {
   const b = document.createElement("button"); b.textContent = e;
-  const s = document.createElement("span"); s.textContent = "GPU farm: " + fmtTime(secs(analyze(e), ATTACKERS[4].rate)); b.appendChild(s);
+  const s = document.createElement("span"); s.textContent = "LineShine: " + fmtTime(secs(analyze(e), LS.rate)); b.appendChild(s);
   b.onclick = () => { pw.value = e; update(); pw.scrollIntoView({behavior:"smooth", block:"center"}); };
   $("ex").appendChild(b);
 });
