@@ -306,6 +306,10 @@ header .tagline{color:var(--mute);font-family:var(--mono);font-size:11px}
 
 <footer><div class="wrap"><span>Crack Lab</span><span id="yr"></span></div></footer>
 
+<!-- zxcvbn-ts: real password pattern matcher (word lists, names, keyboard walks, repeats, dates, l33t) -->
+<script src="https://cdn.jsdelivr.net/npm/@zxcvbn-ts/core@4.3.0/dist/zxcvbn-ts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zxcvbn-ts/language-common@4.2.0/dist/zxcvbn-ts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zxcvbn-ts/language-en@4.1.2/dist/zxcvbn-ts.js"></script>
 <script>
 /* ---------- data ---------- */
 const COMMON = ("123456 password 123456789 12345678 12345 qwerty 1234567 111111 1234567890 123123 abc123 1234 password1 iloveyou 1q2w3e4r 000000 qwerty123 zaq12wsx dragon sunshine princess letmein 654321 monkey 27653 1qaz2wsx 123321 qwertyuiop superman asdfghjkl trustno1 jordan23 welcome 123qwe football baseball master shadow michael 666666 qazwsx 7777777 121212 hello admin login passw0rd starwars freedom whatever charlie donald batman aa123456 lovely 888888 ashley bailey access flower hottie loveme zxcvbnm 696969 solo hunter killer mustang soccer harley ranger buster thomas tigger robert hockey jennifer daniel andrew joshua pepper ginger summer winter matrix secret minecraft creeper diamond pokemon roblox fortnite naruto computer internet google samsung apple chocolate cookie banana orange purple yellow liverpool chelsea arsenal london america jesus blessed angel family friends forever money qwer1234 asdf1234 asdfgh abcdef abcd1234 999999 555555 112233 987654321 159753 1111 0000 test test123 guest root pass password123 admin123 hello123 love123 iloveu").split(" ");
@@ -390,7 +394,7 @@ function segGuesses(seg){
   return {g:brute(seg), what:[]};
 }
 /* Estimate guesses the way real crackers order their attempts (lite version of zxcvbn's idea). */
-function analyze(p){
+function analyzeLite(p){
   const r = {pw:p, bf:brute(p), guesses:0, stage:3, what:[]};
   if (!p){ r.guesses = 0; return r; }
   // separators (- _ . space etc.) are cheap for crackers: rules insert them between letters.
@@ -442,6 +446,61 @@ function analyze(p){
   })(un, p, 1, [], 0);
   if (best && best.g < r.bf){ r.guesses = best.g; r.stage = 2; r.what = [...new Set(best.what)]; return fin(r); }
   r.guesses = r.bf; r.stage = 3; return fin(r);
+}
+/* ---------- zxcvbn: the full pattern matcher, used when it finds something the lite check missed ---------- */
+let ZX = null;
+try {
+  const Z = window.zxcvbnts, C = Z["language-common"], E = Z["language-en"];
+  ZX = new Z.core.ZxcvbnFactory({translations:E.translations, graphs:C.adjacencyGraphs,
+                                 dictionary:Object.assign({}, C.dictionary, E.dictionary)});
+} catch(e) { ZX = null; }   // CDN blocked or offline: fall back to the lite check
+const ZXCACHE = new Map();
+function zxGuesses(p){
+  if (!ZX || !p) return null;
+  if (ZXCACHE.has(p)) return ZXCACHE.get(p);
+  let out = null;
+  try {
+    const seq = ZX.check(p, ["nick","tang","glassifying","cracklab","crack","lab","lineshine"]).sequence;
+    if (seq.some(m => m.pattern !== "bruteforce")){
+      // zxcvbn counts random chunks as 10 guesses per character; we use the real character pool instead
+      let g = 1, what = [], fact = 1;
+      seq.forEach((m, i) => {
+        fact *= (i + 1);
+        if (m.pattern === "bruteforce"){ g *= brute(m.token); return; }
+        g *= Math.max(1, m.guesses);
+        what.push(zxWhat(m));
+      });
+      const common = seq.length === 1 && seq[0].pattern === "dictionary" && seq[0].dictionaryName.startsWith("passwords");
+      out = {g: g * fact, what:[...new Set(what)], stage: common ? 1 : 2,
+             words: seq.filter(m => m.pattern === "dictionary" && m.token.length >= 3).length};
+    }
+  } catch(e) { out = null; }
+  ZXCACHE.set(p, out); if (ZXCACHE.size > 500) ZXCACHE.clear();
+  return out;
+}
+function zxWhat(m){
+  const t = '"' + m.token + '"';
+  switch (m.pattern){
+    case "dictionary": {
+      const d = m.dictionaryName || "";
+      if (d.startsWith("passwords")) return "the common password " + t;
+      if (/firstnames|lastnames/.test(d)) return "the name " + t;
+      if (d === "userInputs") return t + " (too close to this site or its owner)";
+      return (m.reversed ? "the backwards word " : "the word ") + t;
+    }
+    case "repeat": return "the repeat " + t;
+    case "sequence": return "the sequence " + t;
+    case "spatial": return "the keyboard pattern " + t;
+    case "date": return "the date " + t;
+    case "regex": return m.regexName === "recentYear" ? "the year " + t : "the pattern " + t;
+    default: return t;
+  }
+}
+function analyze(p){
+  const r = analyzeLite(p);
+  const z = zxGuesses(p);
+  if (z && z.g < r.guesses){ r.guesses = z.g; r.stage = Math.min(r.stage, z.stage); r.what = z.what; fin(r); }
+  return r;
 }
 function fin(r){ r.guesses = Math.max(1, Math.min(r.guesses, r.bf)); r.bits = Math.log2(r.guesses); return r; }
 function secs(r, rate){ return r.guesses / 2 / rate; }   // on average an attacker finds it halfway through
@@ -651,7 +710,7 @@ function fmtNeed(s){
 }
 function short(att){ return att.name.replace(" (today)",""); }
 function descFor(L, att){ att = att || sel(); return L.c + " Survive " + fmtNeed(needFor(L, att)) + " against " + short(att) + "."; }
-function wordsIn(p){ const u = unleet(p); return WORDS.filter(w => w.length >= 3 && u.includes(w)).length; }
+function wordsIn(p){ const u = unleet(p), z = zxGuesses(p); return Math.max(WORDS.filter(w => w.length >= 3 && u.includes(w)).length, z ? z.words : 0); }
 function rules(L, p, att){
   att = att || sel();
   const s = secs(analyze(p), att.rate), need = needFor(L, att), out = [];
