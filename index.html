@@ -400,8 +400,10 @@ function analyzeLite(p){
   // separators (- _ . space etc.) are cheap for crackers: rules insert them between letters.
   // Rate the password without them, then add only what placing them costs.
   const stripped = p.replace(SEPG, "");
-  if (stripped && stripped !== p){
-    const sub = analyze(stripped), k = p.length - stripped.length;
+  // only when the rest is a word or pattern: in a random password, + ~ - etc. are just more symbols
+  const sub = stripped && stripped !== p ? analyze(stripped) : null;
+  if (sub && sub.stage < 3){
+    const k = p.length - stripped.length;
     const types = new Set(p.match(SEPG)).size;
     const n = stripped.length, gaps = k <= n - 1 ? comb(n - 1, k) : comb(n + 1, Math.min(k, n + 1));
     const g = sub.guesses * Math.pow(4, types) * gaps;
